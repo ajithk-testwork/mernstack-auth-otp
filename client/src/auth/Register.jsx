@@ -27,7 +27,10 @@ const Register = () => {// Initialize navigation
         data.append("password", form.password);
         data.append("image", form.image);
 
+        
+
         try {
+            
             await API.post("/users/register", data);
             alert("Registered Successfully!");
             navigate("/login"); 
