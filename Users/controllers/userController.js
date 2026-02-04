@@ -10,29 +10,24 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    //Validate Field
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All field are required" });
     }
 
     const userExits = await User.findOne({ email });
-    // CHeck user exits
     if (userExits) {
       return res.status(400).json({ message: "User already exits" });
     }
 
-    //hash password
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    //handle image
     let profileImage = null;
     if (req.file) {
       profileImage = `/uploads/${req.file.filename}`;
     }
 
-    // create user
     const user = await User.create({
       name,
       email,
@@ -69,7 +64,7 @@ export const getAllUser = async (req, res) => {
 
 export const getUserId = async (req, res) => {
   try {
-    // 🔐 AUTHORIZATION CHECK
+   
     if (req.user._id.toString() !== req.params.id) {
       return res.status(403).json({
         message: "Access denied: You can only access your own data",
@@ -92,7 +87,7 @@ export const getUserId = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    // 🔐 AUTHORIZATION CHECK
+    
     if (req.user._id.toString() !== req.params.id) {
       return res.status(403).json({
         message: "Access denied: You can only update your own account",
@@ -115,7 +110,7 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    // 🔐 AUTHORIZATION CHECK
+    
     if (req.user._id.toString() !== req.params.id) {
       return res.status(403).json({
         message: "Access denied: You can only update your own account",
@@ -139,18 +134,18 @@ export const loginUser = async (req, res) => {
 
     
     const { email, password } = req.body;
-    //find user
+   
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid Email or Password" });
     }
-    //matched password
+    
     const isPassword = await bcrypt.compare(password, user.password);
     if (!isPassword) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    //create jwt
+    
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES,
     });
@@ -184,18 +179,18 @@ export const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ generate OTP
+    
     const otp = crypto.randomInt(100000, 1000000).toString();
 
-    // ✅ save OTP in DB
+    
     user.forgotPasswordOtp = otp;
     user.forgotPasswordOtpExpire = Date.now() + 10 * 60 * 1000;
 
-    await user.save(); // 🔴 THIS LINE IS CRITICAL
+    await user.save(); 
 
-    console.log("OTP GENERATED & SAVED:", otp); // 👈 DEBUG
+    console.log("OTP GENERATED & SAVED:", otp); 
 
-    // send email
+    
     await resendEmail(
       user.email,
       "Reset Password OTP",
@@ -298,13 +293,13 @@ export const uploadProfileImage = async (req, res) => {
         .json({ message: "You can upload only your own image" });
     }
 
-    //check file exits
+   
 
     if (!req.file) {
       return res.status(400).json({ message: "No image Uploaded" });
     }
 
-    //find the user
+    
     const user = await User.findById(req.params.id);
 
     user.profileImage = `/uploads/${req.file.filename}`;

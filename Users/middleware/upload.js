@@ -2,7 +2,6 @@ import multer from "multer";
 import path from "path";
 
 
-// where to store the image
 const storage = multer.diskStorage({
     destination : (req, file, callback) =>{
         callback(null, "uploads")
@@ -15,7 +14,6 @@ const storage = multer.diskStorage({
 });
 
 
-// only allow the images
 
 const fileFilter = (req, file, callback) =>{
     if(file.mimetype.startsWith("image/")){
